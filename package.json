@@ -1,0 +1,26 @@
+{
+  "name": "@thchia/react-date-picker",
+  "version": "0.0.1",
+  "description": "Date Picker with flexible UI options",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "rm -rf ./lib && tsc",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "author": "",
+  "license": "ISC",
+  "peerDependencies": {
+    "react": "^16.8.6"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^8.0.1",
+    "@types/jest": "^24.0.15",
+    "@types/react": "^16.8.20",
+    "jest": "^24.8.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "ts-jest": "^24.0.2",
+    "typescript": "^3.5.2"
+  }
+}
