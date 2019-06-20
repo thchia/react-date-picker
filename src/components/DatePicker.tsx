@@ -74,7 +74,10 @@ function DatePicker({
   }
 
   function getViewingYear() {
-    return props.range[0].getFullYear() + Math.floor(cursor / 12)
+    return (
+      props.range[0].getFullYear() +
+      Math.floor((cursor + props.range[0].getMonth()) / 12)
+    )
   }
 
   function handlePrevious() {

@@ -406,6 +406,41 @@ describe('DatePicker', () => {
       fireEvent.click(changeYear)
       expect(getAllByText(/2021-0-1/)).toHaveLength(2)
     })
+    it('year selector works when range does not start in Jan', () => {
+      const { getByText } = render(
+        <DatePicker
+          range={[new Date('2018-05-01'), new Date('2019-11-31')]}
+          selectedDate={null}
+          onDateChanged={jest.fn()}
+          type="single"
+          renderYearSelector={({ selectedYear, selectYear }) => (
+            <React.Fragment>
+              <p>Current Year: {selectedYear}</p>
+              <button
+                data-testid="year-select-renderprop"
+                onClick={() => selectYear(2018)}
+              >
+                Set Year to 2018
+              </button>
+              <button
+                data-testid="year-select-renderprop"
+                onClick={() => selectYear(2019)}
+              >
+                Set Year to 2019
+              </button>
+            </React.Fragment>
+          )}
+        />
+      )
+
+      const changeYear2018 = getByText('Set Year to 2018')
+      const changeYear2019 = getByText('Set Year to 2019')
+      fireEvent.click(changeYear2019)
+      getByText('Current Year: 2019')
+      fireEvent.click(changeYear2018)
+      getByText('Current Year: 2018')
+      getByText(/2018-4-1/)
+    })
   })
 })
 
