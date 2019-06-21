@@ -1,6 +1,6 @@
 {
   "name": "@thchia/react-date-picker",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Date Picker with flexible UI options",
   "main": "lib/index.js",
   "scripts": {
