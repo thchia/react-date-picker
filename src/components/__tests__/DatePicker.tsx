@@ -441,6 +441,64 @@ describe('DatePicker', () => {
       getByText('Current Year: 2018')
       getByText(/2018-4-1/)
     })
+    it('passes disabled date config with subRange', () => {
+      const { getByText } = render(
+        <DatePicker
+          range={[new Date('2019-01-10'), new Date('2019-12-31')]}
+          selectedDate={[new Date('2019-01-20'), new Date('2019-01-20')]}
+          subRange={[new Date('2019-01-01'), new Date('2019-02-20')]}
+          onDateChanged={jest.fn()}
+          type="range"
+          renderDates={({ dates }) => (
+            <div data-testid="dates-renderprop">
+              {dates.map(({ date, ...rest }) => (
+                <div key={date.join('-')}>
+                  date: {date.join('-')}
+                  {JSON.stringify(rest)}
+                </div>
+              ))}
+            </div>
+          )}
+        />
+      )
+      getByText(content => {
+        const isDisabled = /2019-1-21/.test(content)
+        const isMarkedDisabled = /"isDisabled":true/.test(content)
+        return isDisabled && isMarkedDisabled
+      })
+    })
+    it('correctly detects viewing year at cursorMax', () => {
+      const { getByText } = render(
+        <DatePicker
+          range={[new Date('2018-05-01'), new Date('2019-01-14')]}
+          selectedDate={[new Date('2018-12-24'), new Date('2019-01-12')]}
+          onDateChanged={jest.fn()}
+          type="range"
+          renderYearSelector={({ selectedYear, selectYear }) => (
+            <React.Fragment>
+              <p>Current Year: {selectedYear}</p>
+              <button
+                data-testid="year-select-renderprop"
+                onClick={() => selectYear(2018)}
+              >
+                Set Year to 2018
+              </button>
+              <button
+                data-testid="year-select-renderprop"
+                onClick={() => selectYear(2019)}
+              >
+                Set Year to 2019
+              </button>
+            </React.Fragment>
+          )}
+        />
+      )
+
+      // @Note: Even though the first year in view is 2018,
+      // we are technically at the last cursor, so we should
+      // see the year of the end of the range
+      getByText('Current Year: 2019')
+    })
   })
 })
 

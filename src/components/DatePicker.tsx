@@ -26,6 +26,7 @@ export interface IRenderCalendarContainerProps {
 
 export interface IDatePickerProps {
   range: [Date, Date]
+  subRange?: [Date, Date]
   selectedDate: [Date, Date]
   onDateChanged: (date: [Date, Date]) => void
   type: 'range' | 'single'
@@ -58,7 +59,6 @@ function DatePicker({
 }: IDatePickerProps) {
   const allDates = createMonths(props.range)
   const cursorMax = Math.max(0, allDates.length - calendarCount)
-
   const [cursor, setCursor] = React.useState(getInitialCursor(cursorMax))
   const slicedDates = allDates.slice(cursor, cursor + calendarCount)
 
@@ -80,6 +80,7 @@ function DatePicker({
   }
 
   function getViewingYear() {
+    if (cursor >= cursorMax) return props.range[1].getFullYear()
     return (
       props.range[0].getFullYear() +
       Math.floor((cursor + props.range[0].getMonth()) / 12)
@@ -173,7 +174,13 @@ function DatePicker({
     return (date: number[], i: number) => {
       const _asUTC = dateToUTC(new Date(date[0], date[1], date[2]))
       const isBeforeMonth = _asUTC < dateToUTC(props.range[0])
+      const isBeforeSubrange = props.subRange
+        ? _asUTC < dateToUTC(props.subRange[0])
+        : false
       const isAfterMonth = _asUTC > dateToUTC(props.range[1])
+      const isAfterSubrange = props.subRange
+        ? _asUTC > dateToUTC(props.subRange[1])
+        : false
       const isSelectedLowerBound = props.selectedDate
         ? _asUTC >= dateToUTC(props.selectedDate[0])
         : false
@@ -182,7 +189,8 @@ function DatePicker({
         : false
 
       const isHidden = month !== date[1]
-      const isDisabled = isBeforeMonth || isAfterMonth
+      const isDisabled =
+        isBeforeMonth || isAfterMonth || isBeforeSubrange || isAfterSubrange
       const isSelected = props.selectedDate
         ? isSelectedLowerBound && isSelectedUpperBound
         : false
