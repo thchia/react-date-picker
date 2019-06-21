@@ -20,6 +20,7 @@ export interface IRenderMonthsContainerProps {
 }
 
 export interface IRenderCalendarContainerProps {
+  index: number
   children?: any
 }
 
@@ -28,6 +29,7 @@ export interface IDatePickerProps {
   selectedDate: [Date, Date]
   onDateChanged: (date: [Date, Date]) => void
   type: 'range' | 'single'
+  calendarCount?: number
   renderMonthsContainer?: (p: IRenderMonthsContainerProps) => React.ReactNode
   renderCalendarContainer?: (
     p: IRenderCalendarContainerProps
@@ -51,23 +53,27 @@ function DatePicker({
   renderMonthLabel = defaultRenderMonthLabel,
   renderDaysOfWeek = defaultRenderDaysOfWeek,
   renderDates = defaultRenderDates,
+  calendarCount = 2,
   ...props
 }: IDatePickerProps) {
-  const [cursor, setCursor] = React.useState(getInitialCursor())
-
   const allDates = createMonths(props.range)
-  const cursorMax = allDates.length - 2
-  const [first, second] = allDates.slice(cursor, cursor + 2)
+  const cursorMax = Math.max(0, allDates.length - calendarCount)
 
-  function getInitialCursor() {
+  const [cursor, setCursor] = React.useState(getInitialCursor(cursorMax))
+  const slicedDates = allDates.slice(cursor, cursor + calendarCount)
+
+  function getInitialCursor(_cursorMax: number) {
     if (props.selectedDate) {
-      return getMonthsFromDate(props.range[0], props.selectedDate[0])
+      return Math.min(
+        _cursorMax,
+        getMonthsFromDate(props.range[0], props.selectedDate[0])
+      )
     } else if (isYearInRange(new Date(), props.range)) {
       const _target = new Date()
       // @Note: this defaults to Jan of the closest year.
       // Remove to default to current month
       _target.setMonth(0)
-      return getMonthsFromDate(props.range[0], _target)
+      return Math.min(_cursorMax, getMonthsFromDate(props.range[0], _target))
     } else {
       return 0
     }
@@ -133,24 +139,24 @@ function DatePicker({
     }
   }
 
-  function getMonthAndCursorChildrenPrev() {
+  function getMonthAndCursorChildrenPrev(date: number[][]) {
     return (
       <React.Fragment>
         {renderPrevBtn({
           disabled: cursor === 0,
           onClick: handlePrevious
         })}
-        {renderMonthLabel({ monthIndex: first[10][1] })}
+        {renderMonthLabel({ monthIndex: date[10][1] })}
       </React.Fragment>
     )
   }
 
-  function getMonthAndCursorChildrenNext() {
+  function getMonthAndCursorChildrenNext(date: number[][]) {
     return (
       <React.Fragment>
-        {renderMonthLabel({ monthIndex: second[10][1] })}
+        {renderMonthLabel({ monthIndex: date[10][1] })}
         {renderNextBtn({
-          disabled: cursor === cursorMax,
+          disabled: cursor >= cursorMax,
           onClick: handleNext
         })}
       </React.Fragment>
@@ -208,35 +214,30 @@ function DatePicker({
     }
   }
 
-  function renderFirstCalendarContainer() {
+  function renderCalendarContainerBase(
+    dates: number[][],
+    position?: 'first' | 'last'
+  ) {
     return (
       <React.Fragment>
-        {/* Prev Btn and Month Label */}
-        {renderMonthAndCursor({
-          children: getMonthAndCursorChildrenPrev()
-        })}
+        {position === 'first'
+          ? /* Prev Btn and Month Label */
+            renderMonthAndCursor({
+              children: getMonthAndCursorChildrenPrev(dates)
+            })
+          : null}
+        {position === 'last'
+          ? /* Next Btn and Month Label */
+            renderMonthAndCursor({
+              children: getMonthAndCursorChildrenNext(dates)
+            })
+          : null}
+        {!position && renderMonthLabel({ monthIndex: dates[10][1] })}
         {/* Days of Week */}
         {renderDaysOfWeek()}
         {/* Dates */}
         {renderDates({
-          dates: first.map(renderDate(first[10][1]))
-        })}
-      </React.Fragment>
-    )
-  }
-
-  function renderSecondCalendarContainer() {
-    return (
-      <React.Fragment>
-        {/* Next Btn and Month Label */}
-        {renderMonthAndCursor({
-          children: getMonthAndCursorChildrenNext()
-        })}
-        {/* Days of Week */}
-        {renderDaysOfWeek()}
-        {/* Dates */}
-        {renderDates({
-          dates: second.map(renderDate(second[10][1]))
+          dates: dates.map(renderDate(dates[10][1]))
         })}
       </React.Fragment>
     )
@@ -245,9 +246,13 @@ function DatePicker({
   function renderMonths() {
     return (
       <React.Fragment>
-        {renderCalendarContainer({ children: renderFirstCalendarContainer() })}
-        {renderCalendarContainer({
-          children: renderSecondCalendarContainer()
+        {slicedDates.map((date, i) => {
+          const first = i === 0 ? 'first' : null
+          const last = i === slicedDates.length - 1 ? 'last' : null
+          return renderCalendarContainer({
+            index: i,
+            children: renderCalendarContainerBase(date, first || last)
+          })
         })}
       </React.Fragment>
     )
@@ -302,7 +307,8 @@ function defaultRenderMonthsContainer({
 }
 
 function defaultRenderCalendarContainer({
-  children
+  children,
+  index
 }: IRenderCalendarContainerProps) {
-  return <div>{children}</div>
+  return <div key={index}>{children}</div>
 }
