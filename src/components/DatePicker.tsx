@@ -13,6 +13,8 @@ export interface IRenderYearSelectorProps {
 
 export interface IRenderMonthAndCursorProps {
   children?: any
+  first?: boolean
+  last?: boolean
 }
 
 export interface IRenderMonthsContainerProps {
@@ -231,13 +233,15 @@ function DatePicker({
         {position === 'first'
           ? /* Prev Btn and Month Label */
             renderMonthAndCursor({
-              children: getMonthAndCursorChildrenPrev(dates)
+              children: getMonthAndCursorChildrenPrev(dates),
+              first: true
             })
           : null}
         {position === 'last'
           ? /* Next Btn and Month Label */
             renderMonthAndCursor({
-              children: getMonthAndCursorChildrenNext(dates)
+              children: getMonthAndCursorChildrenNext(dates),
+              last: true
             })
           : null}
         {!position && renderMonthLabel({ monthIndex: dates[10][1] })}
@@ -288,8 +292,8 @@ function defaultRenderNextBtn(p: ICursorBtnProps) {
   return <DefaultCursorBtn direction="next" {...p} />
 }
 
-function defaultRenderMonthAndCursor(p: IRenderMonthAndCursorProps) {
-  return <div {...p} />
+function defaultRenderMonthAndCursor({ children }: IRenderMonthAndCursorProps) {
+  return <div>{children}</div>
 }
 
 function defaultRenderDaysOfWeek() {
