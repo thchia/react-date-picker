@@ -467,6 +467,40 @@ describe('DatePicker', () => {
         return isDisabled && isMarkedDisabled
       })
     })
+    it('passes isToday', () => {
+      let start = new Date()
+      start.setDate(start.getDate() - 30)
+      let end = new Date()
+      end.setDate(end.getDate() + 30)
+      const { getByText, getAllByText } = render(
+        <DatePicker
+          range={[start, end]}
+          selectedDate={null}
+          onDateChanged={jest.fn()}
+          calendarCount={5}
+          type="range"
+          renderDates={({ dates }) => (
+            <div data-testid="dates-renderprop">
+              {dates.map(({ date, ...rest }) => (
+                <div key={date.join('-')}>
+                  date: {date.join('-')}
+                  {JSON.stringify(rest)}
+                </div>
+              ))}
+            </div>
+          )}
+        />
+      )
+      expect(getAllByText(/"isToday":true/).length).toBe(1)
+      getByText(content => {
+        const now = new Date()
+        const todayDate = `${now.getFullYear()}-${now.getMonth() +
+          1}-${now.getDate()}`
+        const isToday = new RegExp(todayDate).test(content)
+        const isMarkedToday = /"isToday":true/.test(content)
+        return isToday && isMarkedToday
+      })
+    })
     it('correctly detects viewing year at cursorMax', () => {
       const { getByText } = render(
         <DatePicker
