@@ -204,6 +204,14 @@ function DatePicker({
         _asUTC.valueOf() === dateToUTC(props.selectedDate[1]).valueOf()
 
       const isWeekend = i % 7 === 0 || (i + 1) % 7 === 0
+      const today = new Date()
+      const isToday =
+        new Date(date.join('-')).valueOf() ===
+        new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate()
+        ).valueOf()
 
       function handleClicked() {
         if (isHidden || isDisabled) return
@@ -219,7 +227,8 @@ function DatePicker({
         isFirstSelected,
         isLastSelected,
         isWeekend,
-        onClick: handleClicked
+        onClick: handleClicked,
+        isToday
       }
     }
   }

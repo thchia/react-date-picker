@@ -14,6 +14,7 @@ export interface IRenderDatesProps {
     // Is last selected date
     isLastSelected: boolean
     isWeekend: boolean
+    isToday: boolean
     onClick: () => void
   }>
 }
