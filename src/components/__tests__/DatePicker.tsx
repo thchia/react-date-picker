@@ -491,13 +491,18 @@ describe('DatePicker', () => {
           )}
         />
       )
-      expect(getAllByText(/"isToday":true/).length).toBe(1)
+      function _checkIsToday(content: string) {
+        return (
+          /"isToday":true/.test(content) && /"isHidden":false/.test(content)
+        )
+      }
+      expect(getAllByText(_checkIsToday).length).toBe(1)
       getByText(content => {
         const now = new Date()
         const todayDate = `${now.getFullYear()}-${now.getMonth() +
           1}-${now.getDate()}`
         const isToday = new RegExp(todayDate).test(content)
-        const isMarkedToday = /"isToday":true/.test(content)
+        const isMarkedToday = _checkIsToday(content)
         return isToday && isMarkedToday
       })
     })
